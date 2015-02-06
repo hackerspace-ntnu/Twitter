@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from twitter import *
 import subprocess
 from random import randint
