@@ -4,6 +4,8 @@ from random import randint
 import time
 
 import urllib2
+from secret import ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_SECRET, CONSUMER_KEY
+
 
 def internet_on():
     try:
@@ -38,7 +40,7 @@ complete = None
 while not complete:
     try:
         time.sleep(2)
-        twitter = Twitter(auth=OAuth('2387200483-QN8mAtIweLdF70TfsEtBuR47zzw86p06MXCY0er', '6nqftquJnaqfqqM8IEiId98iU3i8GzMSDrYDWwQ3o9Z90', 'qtM32rShCUvdwEnO0FwRCw', 'VquAJnz7WXWi190gtnfYla4hGSZ0SsSqylJxvv2Y7o'))
+        twitter = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_SECRET, CONSUMER_KEY))
         print "Authed with twitter!"
         arg='ip route list'
         p=subprocess.Popen(arg,shell=True,stdout=subprocess.PIPE)
