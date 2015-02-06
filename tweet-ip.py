@@ -40,7 +40,7 @@ complete = None
 while not complete:
     try:
         time.sleep(2)
-        twitter = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_SECRET, CONSUMER_KEY))
+        twitter = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET))
         print "Authed with twitter!"
         arg='ip route list'
         p=subprocess.Popen(arg,shell=True,stdout=subprocess.PIPE)
