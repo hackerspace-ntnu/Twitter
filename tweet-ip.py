@@ -1,61 +1,74 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
-from twitter import *
 import subprocess
-from random import randint
 import time
-
 import urllib2
+import sys
+from random import randint
+
+from twitter import Twitter, OAuth, TwitterError
 from secret import ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_SECRET, CONSUMER_KEY
 
 
-def internet_on():
+TIMEOUT = 5
+
+
+def is_internet_on():
+    """Check if we have a connection to twitter.com"""
     try:
-        response=urllib2.urlopen('http://twitter.com',timeout=1)
+        urllib2.urlopen('http://twitter.com', timeout=1)
         return True
-    except urllib2.URLError as err: pass
+    except urllib2.URLError:
+        pass
     return False
 
-def getserial():
-  # Extract serial from cpuinfo file
-  cpuserial = "0000000000000000"
-  try:
-    f = open('/proc/cpuinfo','r')
-    for line in f:
-      if line[0:6]=='Serial':
-        cpuserial = line[10:26]
-    f.close()
-  except:
-    cpuserial = "ERROR000000000"
 
-  return cpuserial
-
-while not internet_on():
-    print "no internetz"
-    time.sleep(5)
-
-print "internetz!"
-rng = randint(1, 999)
-
-complete = None
-
-while not complete:
+def get_serial():
+    """Extract serial from cpuinfo file"""
     try:
-        time.sleep(2)
-        twitter = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET))
-        print "Authed with twitter!"
-        arg='ip route list'
-        p=subprocess.Popen(arg,shell=True,stdout=subprocess.PIPE)
-        data = p.communicate()
-        split_data = data[0].split()
-        ipaddr = split_data[split_data.index('src')+1]
+        with open('/proc/cpuinfo', 'r') as open_file:
+            for line in open_file:
+                if line.startswith('Serial'):
+                    return line[10:26]
+    except:
+        return "ERROR000000000"
 
-        my_ip = '<%d>(%s) piip: %s' %  (rng,getserial(), ipaddr)
-        print my_ip
+    return "0000000000000000"
 
-        twitter.statuses.update(status=my_ip)
-        print "tweeted!"
-        complete = True
-    except TwitterError:
-        print "TwitterError!! Trying again"
-        continue
+
+def get_ip():
+    p = subprocess.Popen('ip route list', shell=True, stdout=subprocess.PIPE)
+    data = p.communicate()
+    split_data = data[0].split()
+    return split_data[split_data.index('src') + 1]
+
+
+try:
+    while not is_internet_on():
+        print "No internet connection detected, trying again in {}s".format(TIMEOUT)
+        time.sleep(TIMEOUT)
+
+    print "Internet connection detected!"
+    rng = randint(1, 999)
+    ip = get_ip()
+    serial = get_serial()
+
+    while True:
+        try:
+            twitter = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET))
+            print "Authed with twitter!"
+
+            status = '<%d>(%s) piip: %s' % (rng, serial, ip)
+            print status
+
+            twitter.statuses.update(status=status)
+            print "Tweeted!"
+            break
+        except TwitterError:
+            print "TwitterError!! Trying again in {}s".format(TIMEOUT)
+            time.sleep(TIMEOUT)
+            continue
+
+except KeyboardInterrupt:
+    print "Stopping tweet-ip.py"
+    sys.exit()
