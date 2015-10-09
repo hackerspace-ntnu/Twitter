@@ -50,7 +50,7 @@ while not complete:
         split_data = data[0].split()
         ipaddr = split_data[split_data.index(b'src')+1].decode("utf-8")
 
-        my_ip = 'RPI-2 <%d>(%s) piip: %s' %  (rng,getserial(), ipaddr)
+        my_ip = 'RPI-*num* <%d>(%s) piip: %s' %  (rng,getserial(), ipaddr)
         print(my_ip)
 
         twitter.statuses.update(status=my_ip)
