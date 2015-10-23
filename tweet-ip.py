@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import unicode_literals, print_function
 
 import subprocess
 import time
@@ -50,7 +51,7 @@ def get_ip():
     p = subprocess.Popen('ip route list', shell=True, stdout=subprocess.PIPE)
     data = p.communicate()
     split_data = data[0].split()
-    return split_data[split_data.index(b'src') + 1]
+    return split_data[split_data.index(b'src') + 1].decode('utf-8')
 
 
 try:
