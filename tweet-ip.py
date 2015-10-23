@@ -1,15 +1,24 @@
+#!/usr/bin/env python
+
 import subprocess
 import time
-try:
-    import urllib2
-except(ImportError):
-    import urllib.request as urllib2
 import sys
 from random import randint
+
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 
 from twitter import Twitter, OAuth, TwitterError
 from secret import ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_SECRET, CONSUMER_KEY
 
+try:
+    import pidentity
+
+    PI_ID = getattr(pidentity, 'ID', '?')
+except ImportError:
+    PI_ID = '?'
 
 TIMEOUT = 5
 
@@ -50,16 +59,17 @@ try:
         time.sleep(TIMEOUT)
 
     print("Internet connection detected!")
-    rng = randint(1, 999)
-    ip = get_ip()
-    serial = get_serial()
-
     while True:
         try:
             twitter = Twitter(auth=OAuth(ACCESS_TOKEN, ACCESS_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET))
             print("Authed with twitter!")
 
-            status = '<%d>(%s) piip: %s' % (rng, serial, ip)
+            status = 'RPI-{id} <{rng}>({serial}) piip: {ip}'.format(
+                id=PI_ID,
+                rng=randint(1, 999),  # so that the new tweet is not identical to the last
+                serial=get_serial(),
+                ip=get_ip()
+            )
             print(status)
 
             twitter.statuses.update(status=status)
