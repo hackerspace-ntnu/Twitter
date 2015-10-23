@@ -1,3 +1,7 @@
 secret.py
+pidentity.py
+*.pyc
+*.swp
+__pycache__/
 .idea\
 .idea/
